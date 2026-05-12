@@ -105,7 +105,7 @@ tfg_scripts/
         │   WEF · WinRM 5985         │                            │
         │   (Source-Initiated)       │                            │ Tráfico
         └─────────────┬──────────────┘                            │ malicioso
-                      ▼                                            ▼
+                      ▼                                           ▼
         ┌─────────────────────────────┐              ┌─────────────────────┐
         │     SERVIDOR (Collector)    │◄─────────────┤   Snort (NIDS)      │
         │                             │   alert.ids  │   host-only iface   │
