@@ -91,15 +91,15 @@ tfg_scripts/
 
 ```
                     ┌─────────────────────────────────────┐
-                    │        DOMINIO ACTIVE DIRECTORY      │
-                    │      DOMINIOPROY25CSR.EDU            │
+                    │        DOMINIO ACTIVE DIRECTORY     │
+                    │      DOMINIOPROY25CSR.EDU           │
                     └─────────────────────────────────────┘
                                       │
         ┌─────────────────────────────┼─────────────────────────────┐
         ▼                             ▼                             ▼
  ┌─────────────┐              ┌─────────────┐              ┌─────────────┐
- │ CLIENTE 1   │              │ CLIENTE 2   │              │  KALI LINUX │
- │   Sysmon    │              │   Sysmon    │              │  (host-only)│
+ │ CLIENTE 1   │              │ CLIENTE 2   │              │ KALI LINUX  │
+ │   Sysmon    │              │   Sysmon    │              │ (host-only) │
  │   Defender  │              │   Defender  │              │    nmap     │
  └──────┬──────┘              └──────┬──────┘              └──────┬──────┘
         │   WEF · WinRM 5985         │                            │
