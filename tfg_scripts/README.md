@@ -134,7 +134,8 @@ tfg_scripts/
 | Dashboard Web (`:8080`) | Notificación Discord |
 |---|---|
 | <img width="1665" height="886" alt="image" src="https://github.com/user-attachments/assets/6eefc86f-b21d-42a4-850c-2d11161fe436" />
-||
+|<img width="1832" height="903" alt="image" src="https://github.com/user-attachments/assets/1101ccf9-71fb-417d-9924-e92a26884929" />
+|
 
 ---
 
