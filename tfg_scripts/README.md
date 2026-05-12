@@ -131,13 +131,10 @@ tfg_scripts/
 
 ## 📸 Capturas
 
-> Añade aquí tus screenshots reales del panel y Discord:
-
 | Dashboard Web (`:8080`) | Notificación Discord |
 |---|---|
 | <img width="1665" height="886" alt="image" src="https://github.com/user-attachments/assets/6eefc86f-b21d-42a4-850c-2d11161fe436" />
-|<img width="1825" height="903" alt="image" src="https://github.com/user-attachments/assets/53ba45b2-d89d-4d8a-a9fa-44b670c50bcd" />
-|
+||
 
 ---
 
