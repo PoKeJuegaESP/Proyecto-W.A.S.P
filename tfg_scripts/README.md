@@ -1,6 +1,7 @@
 <div align="center">
 
-# 🛡️ TFG · Sistema de Monitorización Activa para Dominio Windows
+# 🛡️ Proyecto · W.A.S.P
+**W**indows **A**uditing & **S**ecurity **P**latform.
 
 ### Detección de amenazas en tiempo real con Snort + Sysmon + WEF + Python
 
@@ -12,7 +13,6 @@
 [![Discord](https://img.shields.io/badge/Discord-Webhook-5865F2?logo=discord&logoColor=white)](https://discord.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Pipeline SIEM ligero, end-to-end, para entornos Active Directory.**
 Recolecta eventos de seguridad de toda la red, los analiza con heurísticas basadas en
 **MITRE ATT&CK** y reacciona automáticamente bloqueando IPs en el firewall.
 
@@ -103,8 +103,8 @@ tfg_scripts/
  │   Defender  │              │   Defender  │              │    nmap     │
  └──────┬──────┘              └──────┬──────┘              └──────┬──────┘
         │   WEF · WinRM 5985         │                            │
-        │   (Source-Initiated)        │                            │ Tráfico
-        └─────────────┬───────────────┘                            │ malicioso
+        │   (Source-Initiated)       │                            │ Tráfico
+        └─────────────┬──────────────┘                            │ malicioso
                       ▼                                            ▼
         ┌─────────────────────────────┐              ┌─────────────────────┐
         │     SERVIDOR (Collector)    │◄─────────────┤   Snort (NIDS)      │
@@ -135,7 +135,9 @@ tfg_scripts/
 
 | Dashboard Web (`:8080`) | Notificación Discord |
 |---|---|
-| _Captura del panel con timeline de alertas_ | _Captura del canal Discord con alertas en tiempo real_ |
+| <img width="1665" height="886" alt="image" src="https://github.com/user-attachments/assets/6eefc86f-b21d-42a4-850c-2d11161fe436" />
+|<img width="1825" height="903" alt="image" src="https://github.com/user-attachments/assets/53ba45b2-d89d-4d8a-a9fa-44b670c50bcd" />
+|
 
 ---
 
