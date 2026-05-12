@@ -1,0 +1,26 @@
+<Sysmon schemaversion="4.30">
+  <HashAlgorithms>md5,sha256</HashAlgorithms>
+  <EventFiltering>
+    <RuleGroup name="" groupRelation="or">
+      <ProcessCreate onmatch="exclude" />
+    </RuleGroup>
+
+    <RuleGroup name="" groupRelation="or">
+      <NetworkConnect onmatch="include">
+        <Image condition="begin with">C:\Users</Image> </NetworkConnect>
+    </RuleGroup>
+
+    <RuleGroup name="" groupRelation="or">
+      <ImageLoad onmatch="include">
+        <Signature condition="contains">unsigned</Signature>
+      </ImageLoad>
+    </RuleGroup>
+
+    <RuleGroup name="" groupRelation="or">
+      <CreateRemoteThread onmatch="include">
+        <TargetImage condition="end with">explorer.exe</TargetImage>
+        <TargetImage condition="end with">svchost.exe</TargetImage>
+      </CreateRemoteThread>
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>

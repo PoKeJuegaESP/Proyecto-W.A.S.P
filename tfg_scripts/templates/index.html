@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TFG · Panel de Monitorización</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:          #0b0f14;
+    --bg-2:        #111923;
+    --card:        #141e2b;
+    --card-bd:     #1f2d3f;
+    --fg:          #e6edf3;
+    --fg-dim:      #8a9bae;
+    --accent:      #00e5ff;
+    --accent-2:    #ff4081;
+    --ok:          #3ddc97;
+    --warn:        #ffb84d;
+    --err:         #ff5370;
+    --grid:        #1a2433;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 14px; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(0,229,255,0.08), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(255,64,129,0.06), transparent 60%),
+      var(--bg);
+    min-height: 100vh;
+  }
+  header {
+    padding: 28px 36px 14px; display: flex; justify-content: space-between;
+    align-items: center; border-bottom: 1px solid var(--card-bd);
+  }
+  header h1 {
+    margin: 0; font-family: "Space Grotesk", sans-serif; font-weight: 700;
+    font-size: 22px; letter-spacing: 0.5px;
+  }
+  header h1 .dot { color: var(--accent); }
+  header .host { color: var(--fg-dim); font-size: 12px; letter-spacing: 1px; }
+  header .live { display: flex; align-items: center; gap: 10px; color: var(--ok); font-size: 12px; }
+  header .live .blink {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--ok);
+    box-shadow: 0 0 8px var(--ok); animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:.25} }
+
+  main { padding: 24px 36px 48px; }
+
+  .grid-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px; margin-bottom: 26px;
+  }
+  .card {
+    background: linear-gradient(180deg, var(--card) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--card-bd); border-radius: 10px; padding: 18px 20px;
+    position: relative; overflow: hidden;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .card .label {
+    text-transform: uppercase; font-size: 11px; color: var(--fg-dim);
+    letter-spacing: 1.3px;
+  }
+  .card .value {
+    font-family: "Space Grotesk", sans-serif; font-size: 34px; font-weight: 700;
+    margin-top: 6px;
+  }
+  .card .sub { color: var(--fg-dim); font-size: 11px; margin-top: 4px; }
+  .card.accent .value { color: var(--accent); }
+  .card.warn   .value { color: var(--warn); }
+  .card.err    .value { color: var(--err); }
+  .card.ok     .value { color: var(--ok); }
+  .card::after {
+    content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: .35;
+  }
+
+  .row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;
+  }
+  @media (max-width: 1100px) { .row { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--card-bd);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .panel h2 {
+    margin: 0 0 14px; font-family: "Space Grotesk", sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--fg-dim); display: flex; align-items: center; gap: 10px;
+  }
+  .panel h2::before {
+    content: ""; width: 6px; height: 14px; background: var(--accent);
+    border-radius: 2px; box-shadow: 0 0 6px var(--accent);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--grid); }
+  th { color: var(--fg-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+  td.mono { font-family: "JetBrains Mono", monospace; color: var(--fg-dim); }
+  tr:hover td { background: rgba(0,229,255,0.03); }
+
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .tag.scan    { background: rgba(0,229,255,.12);  color: var(--accent); border: 1px solid rgba(0,229,255,.4); }
+  .tag.login   { background: rgba(255,184,77,.12); color: var(--warn);   border: 1px solid rgba(255,184,77,.4); }
+  .tag.block   { background: rgba(255,64,129,.12); color: var(--accent-2); border: 1px solid rgba(255,64,129,.4); }
+  .tag.malware { background: rgba(255,83,112,.12); color: var(--err);    border: 1px solid rgba(255,83,112,.4); }
+  .tag.sysmon  { background: rgba(61,220,151,.12);color: var(--ok);    border: 1px solid rgba(61,220,151,.4); }
+  .tag.error   { background: rgba(255,83,112,.12); color: var(--err);    border: 1px solid rgba(255,83,112,.4); }
+  .tag.info    { background: rgba(138,155,174,.1); color: var(--fg-dim); border: 1px solid var(--card-bd); }
+  .tag.ok      { background: rgba(61,220,151,.12); color: var(--ok);     border: 1px solid rgba(61,220,151,.4); }
+
+  .chart-wrap { height: 280px; }
+  .empty { color: var(--fg-dim); padding: 14px; font-style: italic; text-align: center; }
+  .hash  { font-family: "JetBrains Mono", monospace; color: var(--fg-dim); font-size: 11px; }
+  .msg   { color: var(--fg); }
+
+  footer {
+    padding: 20px 36px; color: var(--fg-dim); font-size: 11px;
+    border-top: 1px solid var(--card-bd); display: flex;
+    justify-content: space-between;
+  }
+  ::selection { background: var(--accent); color: #000; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--card-bd); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>tfg<span class="dot">::</span>panel de monitorización</h1>
+    <div class="host">host &rarr; {{SERVIDOR}}</div>
+  </div>
+  <div class="live">
+    <span class="blink"></span>
+    <span>EN VIVO · actualización 10s</span>
+    <span id="ts" style="color:var(--fg-dim); margin-left:14px;"></span>
+  </div>
+</header>
+
+<main>
+  <!-- Tarjetas de resumen -->
+  <section class="grid-cards" id="cards">
+    <div class="card accent" data-testid="card-alertas-24h">
+      <div class="label">Alertas (24h)</div>
+      <div class="value" id="v-alertas-24h">–</div>
+      <div class="sub">Total: <span id="v-alertas-tot">–</span></div>
+    </div>
+    <div class="card err" data-testid="card-ips-bloqueadas">
+      <div class="label">IPs bloqueadas</div>
+      <div class="value" id="v-ips">–</div>
+      <div class="sub">Reglas BLOCK_* en firewall</div>
+    </div>
+    <div class="card ok" data-testid="card-backups-ok">
+      <div class="label">Backups OK</div>
+      <div class="value" id="v-bk-ok">–</div>
+      <div class="sub">Errores: <span id="v-bk-err">–</span></div>
+    </div>
+    <div class="card" data-testid="card-backups-archivos">
+      <div class="label">Archivos backup</div>
+      <div class="value" id="v-bk-arch">–</div>
+      <div class="sub">Tamaño total: <span id="v-bk-size">–</span></div>
+    </div>
+    <div class="card warn" data-testid="card-ultimo-backup">
+      <div class="label">Último backup</div>
+      <div class="value" id="v-bk-last" style="font-size:16px;">–</div>
+      <div class="sub" id="v-bk-last-date">–</div>
+    </div>
+  </section>
+
+  <!-- Timeline + IPs -->
+  <section class="row">
+    <div class="panel" data-testid="panel-timeline">
+      <h2>Timeline de alertas · últimas 24h</h2>
+      <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
+    </div>
+    <div class="panel" data-testid="panel-ips">
+      <h2>IPs bloqueadas en firewall</h2>
+      <table>
+        <thead><tr><th>IP</th><th>Regla</th></tr></thead>
+        <tbody id="tbl-ips"><tr><td colspan="2" class="empty">—</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Alertas -->
+  <section class="panel" style="margin-bottom:20px" data-testid="panel-alertas">
+    <h2>Últimas alertas de seguridad</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Tipo</th><th>IP</th><th>Mensaje</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-alertas"><tr><td colspan="4" class="empty">Sin alertas registradas</td></tr></tbody>
+    </table>
+  </section>
+
+  <!-- Backups -->
+  <section class="panel" data-testid="panel-backups">
+    <h2>Historial de copias de seguridad</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Estado</th><th>Archivo</th><th>Hash SHA-256</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-backups"><tr><td colspan="4" class="empty">Sin backups registrados</td></tr></tbody>
+    </table>
+  </section>
+</main>
+
+<footer>
+  <span>TFG · Monitorización de dominio Windows</span>
+  <span>Snort · Sysmon · 7-Zip · Discord webhooks</span>
+</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let chart;
+
+  function escapeHTML(s) {
+    return (s ?? "").toString()
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  async function get(url) {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  }
+
+  async function refreshStats() {
+    const s = await get("/api/stats");
+    $("v-alertas-24h").textContent = s.alertas_24h;
+    $("v-alertas-tot").textContent = s.alertas_totales;
+    $("v-ips").textContent         = s.ips_bloqueadas;
+    $("v-bk-ok").textContent       = s.backups_ok;
+    $("v-bk-err").textContent      = s.backups_error;
+    $("v-bk-arch").textContent     = s.backups_archivos;
+    $("v-bk-size").textContent     = s.backups_tamanio;
+    if (s.ultimo_backup) {
+      $("v-bk-last").textContent      = s.ultimo_backup.archivo;
+      $("v-bk-last-date").textContent = s.ultimo_backup.fecha;
+    }
+    $("ts").textContent = "últ. " + s.generado;
+  }
+
+  async function refreshTimeline() {
+    const t = await get("/api/timeline?horas=24");
+    const ctx = document.getElementById("chart-timeline");
+    const datasets = [
+      mkDs("Escaneo",  t.scan,    "#00e5ff"),
+      mkDs("Login",    t.login,   "#ffb84d"),
+      mkDs("Bloqueo",  t.block,   "#ff4081"),
+      mkDs("Malware",  t.malware, "#ff5370"),
+    ];
+    if (!chart) {
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: { labels: t.labels, datasets },
+        options: {
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: "#8a9bae", font: { family: "JetBrains Mono", size: 11 } } },
+            tooltip: { mode: "index", intersect: false },
+          },
+          scales: {
+            x: { stacked: true, ticks: { color: "#8a9bae" }, grid: { color: "#1a2433" } },
+            y: { stacked: true, ticks: { color: "#8a9bae", precision: 0 }, grid: { color: "#1a2433" }, beginAtZero: true },
+          },
+          animation: { duration: 300 },
+        },
+      });
+    } else {
+      chart.data.labels = t.labels;
+      chart.data.datasets.forEach((ds, i) => ds.data = [t.scan, t.login, t.block, t.malware][i]);
+      chart.update("none");
+    }
+  }
+
+  function mkDs(label, data, color) {
+    return {
+      label, data,
+      backgroundColor: color + "cc",
+      borderColor: color,
+      borderWidth: 1,
+      borderRadius: 3,
+    };
+  }
+
+  async function refreshAlertas() {
+    const rows = await get("/api/alertas?limit=50");
+    const tb = $("tbl-alertas");
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty">Sin alertas registradas</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(a => `
+      <tr>
+        <td class="mono">${escapeHTML(a.ts)}</td>
+        <td><span class="tag ${escapeHTML(a.tipo)}">${escapeHTML(a.tipo)}</span></td>
+        <td class="mono">${escapeHTML(a.ip || "—")}</td>
+        <td class="msg">${escapeHTML(a.mensaje).slice(0, 220)}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function refreshIps() {
+    const rows = await get("/api/ips");
+    const tb = $("tbl-ips");
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="2" class="empty">Ninguna IP bloqueada</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(i => `
+      <tr><td class="mono" style="color:var(--accent-2)">${escapeHTML(i.ip)}</td>
+          <td class="mono">${escapeHTML(i.regla)}</td></tr>
+    `).join("");
+  }
+
+  async function refreshBackups() {
+    const rows = await get("/api/backups?limit=30");
+    const tb = $("tbl-backups");
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="4" class="empty">Sin backups registrados</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(b => `
+      <tr>
+        <td class="mono">${escapeHTML(b.ts)}</td>
+        <td><span class="tag ${b.estado === "ok" ? "ok" : (b.estado === "error" ? "error" : "info")}">${escapeHTML(b.estado)}</span></td>
+        <td class="mono">${escapeHTML(b.archivo || "—")}</td>
+        <td class="hash">${escapeHTML(b.hash || "—")}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function refreshAll() {
+    try {
+      await Promise.all([
+        refreshStats(),
+        refreshTimeline(),
+        refreshAlertas(),
+        refreshIps(),
+        refreshBackups(),
+      ]);
+    } catch (e) { console.error(e); }
+  }
+
+  refreshAll();
+  setInterval(refreshAll, 10000);
+</script>
+</body>
+</html>
