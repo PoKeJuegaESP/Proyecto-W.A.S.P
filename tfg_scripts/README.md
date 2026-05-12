@@ -646,7 +646,7 @@ DIAS_RETENER = 30
 | ❌ ForwardedEvents vacío | Suscripción inactiva o cliente sin permisos | `wecutil rs TFG_Sysmon_Security` y revisar paso 2.2 |
 | ❌ `EventID 102` en cliente | Firewall del cliente o DNS | `Test-NetConnection <SERVIDOR> -Port 5985` |
 | ❌ `EventID 5004` Wecsvc | Permisos `NETWORK SERVICE` faltan en canal | Aplicar SDDL del paso 2.2 |
-| ❌ Snort no genera alertas | `HOME_NET` no incluye la red atacante | Editar `snort.conf` (paso 3.2) |
+| ❌ Snort no genera alertas | `HOME_NET` no incluye la red necesaria | Editar `snort.conf` (paso 3.2) |
 | ❌ `0x8033808F` en cliente | DNS o Kerberos roto | Verificar que el cliente resuelve el DC y `klist` |
 | ❌ Latencia alta WEF (>1 min) | Modo `Normal` por defecto | `wecutil ss <sub> /cm:MinLatency` |
 | ❌ `netsh: Access denied` | Script no corre como admin | NSSM con cuenta `LocalSystem` o tarea programada con `RU SYSTEM` |
@@ -675,8 +675,7 @@ DIAS_RETENER = 30
 
 <div align="center">
 
-### Hecho con ❤️ para el Trabajo de Fin de Grado
+### Hecho con ❤️ y mucha paciencia para el Trabajo de Fin de Grado
 
-⭐ Si este proyecto te ha sido útil, ¡dale una estrella en GitHub!
 
 </div>
