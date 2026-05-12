@@ -44,7 +44,7 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 SERVIDOR = socket.gethostname()
 
-app = FastAPI(title="TFG – Panel de Monitorización")
+app = FastAPI(title="Proyecto W.A.S.P – Panel de Monitorización")
 
 
 # ============================================================
@@ -336,5 +336,5 @@ if __name__ == "__main__":
     if not TEMPLATES_DIR.is_dir():
         print(f"[ERROR] No existe {TEMPLATES_DIR}", file=sys.stderr)
         sys.exit(1)
-    print(f"🌐  Panel TFG disponible en  http://{HOST}:{PORT}")
+    print(f"🌐  Panel Web disponible en  http://{HOST}:{PORT}")
     uvicorn.run(app, host=HOST, port=PORT, log_level="warning")
